@@ -1,0 +1,51 @@
+{
+  "app": {
+    "title": "GRPC Curl Desktop",
+    "subtitle": "Desktop gRPC Client"
+  },
+  "proto": {
+    "upload": "Upload .proto File",
+    "selectFile": "Select Proto File",
+    "fileName": "File Name",
+    "methods": "Available Services",
+    "noMethods": "No methods found",
+    "parsing": "Parsing proto file...",
+    "error": "Failed to parse proto file"
+  },
+  "request": {
+    "method": "Method",
+    "endpoint": "Endpoint",
+    "request": "Request",
+    "response": "Response",
+    "send": "Send Request",
+    "copy": "Copy Response",
+    "copied": "Copied to clipboard!",
+    "error": "Request failed",
+    "placeholder": "Enter request data as JSON"
+  },
+  "tabs": {
+    "newTab": "New Tab",
+    "tab": "Tab"
+  },
+  "favorites": {
+    "title": "Favorite Endpoints",
+    "addNew": "Add New",
+    "addCurrent": "Add Current",
+    "noEndpoints": "No favorite endpoints yet",
+    "addEndpointTitle": "Add Favorite Endpoint",
+    "endpointName": "Endpoint Name",
+    "endpointUrl": "Endpoint URL",
+    "addedDate": "Added",
+    "loadEndpoint": "Load endpoint",
+    "copyUrl": "Copy URL",
+    "delete": "Delete"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "add": "Add"
+  }
+}

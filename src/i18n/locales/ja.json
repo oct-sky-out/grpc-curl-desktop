@@ -1,0 +1,51 @@
+{
+  "app": {
+    "title": "GRPC Curl デスクトップ",
+    "subtitle": "デスクトップ gRPC クライアント"
+  },
+  "proto": {
+    "upload": ".proto ファイルをアップロード",
+    "selectFile": "Proto ファイルを選択",
+    "fileName": "ファイル名",
+    "methods": "利用可能なサービス",
+    "noMethods": "メソッドが見つかりません",
+    "parsing": "proto ファイルを解析中...",
+    "error": "proto ファイルの解析に失敗しました"
+  },
+  "request": {
+    "method": "メソッド",
+    "endpoint": "エンドポイント",
+    "request": "リクエスト",
+    "response": "レスポンス",
+    "send": "リクエストを送信",
+    "copy": "レスポンスをコピー",
+    "copied": "クリップボードにコピーしました！",
+    "error": "リクエストが失敗しました",
+    "placeholder": "JSON形式でリクエストデータを入力してください"
+  },
+  "tabs": {
+    "newTab": "新しいタブ",
+    "tab": "タブ"
+  },
+  "favorites": {
+    "title": "お気に入りエンドポイント",
+    "addNew": "新規追加",
+    "addCurrent": "現在を追加",
+    "noEndpoints": "お気に入りエンドポイントがまだありません",
+    "addEndpointTitle": "お気に入りエンドポイントを追加",
+    "endpointName": "エンドポイント名",
+    "endpointUrl": "エンドポイントURL",
+    "addedDate": "追加日",
+    "loadEndpoint": "エンドポイントを読み込み",
+    "copyUrl": "URLをコピー",
+    "delete": "削除"
+  },
+  "common": {
+    "loading": "読み込み中...",
+    "error": "エラー",
+    "success": "成功",
+    "cancel": "キャンセル",
+    "confirm": "確認",
+    "add": "追加"
+  }
+}

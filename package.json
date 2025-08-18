@@ -1,0 +1,86 @@
+{
+  "name": "grpc-curl-desktop",
+  "version": "0.1.0",
+  "description": "Desktop GRPC client application",
+  "main": "dist/main/main.js",
+  "homepage": "./",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "build:electron": "electron-builder",
+    "electron": "electron .",
+    "electron:dev": "pnpm dev",
+    "lint": "eslint src --ext ts,tsx",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest"
+  },
+  "keywords": [
+    "grpc",
+    "desktop",
+    "electron",
+    "react",
+    "typescript"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@typescript-eslint/eslint-plugin": "^7.15.0",
+    "@typescript-eslint/parser": "^7.15.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "concurrently": "^8.2.2",
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "eslint-plugin-react-refresh": "^0.4.7",
+    "typescript": "^5.2.2",
+    "vite": "^5.3.4",
+    "vite-plugin-electron": "^0.28.7",
+    "vite-plugin-electron-renderer": "^0.14.5",
+    "vitest": "^2.0.0",
+    "wait-on": "^7.2.0"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.5",
+    "@grpc/grpc-js": "^1.10.9",
+    "@grpc/proto-loader": "^0.7.13",
+    "@mui/icons-material": "^5.16.0",
+    "@mui/material": "^5.16.0",
+    "@protobufjs/inquire": "^1.1.0",
+    "i18next": "^23.11.5",
+    "protobufjs": "^7.3.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-i18next": "^14.1.2",
+    "react-json-editor-ajrm": "^2.5.14"
+  },
+  "build": {
+    "appId": "com.grpc-curl-desktop",
+    "productName": "GRPC Curl Desktop",
+    "directories": {
+      "output": "release",
+      "buildResources": "dist"
+    },
+    "files": [
+      "dist/**/*",
+      "package.json",
+      "public/**/*"
+    ],
+    "mac": {
+      "category": "public.app-category.developer-tools",
+      "icon": "public/icon.png"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "public/icon.png"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "public/icon.png"
+    }
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "app": {
+    "title": "GRPC Curl 데스크톱",
+    "subtitle": "데스크톱 gRPC 클라이언트"
+  },
+  "proto": {
+    "upload": ".proto 파일 업로드",
+    "selectFile": "Proto 파일 선택",
+    "fileName": "파일명",
+    "methods": "사용 가능한 서비스",
+    "noMethods": "메서드를 찾을 수 없습니다",
+    "parsing": "proto 파일 분석 중...",
+    "error": "proto 파일 분석에 실패했습니다"
+  },
+  "request": {
+    "method": "메서드",
+    "endpoint": "엔드포인트",
+    "request": "요청",
+    "response": "응답",
+    "send": "요청 전송",
+    "copy": "응답 복사",
+    "copied": "클립보드에 복사되었습니다!",
+    "error": "요청에 실패했습니다",
+    "placeholder": "JSON 형태로 요청 데이터를 입력하세요"
+  },
+  "tabs": {
+    "newTab": "새 탭",
+    "tab": "탭"
+  },
+  "favorites": {
+    "title": "즐겨찾는 엔드포인트",
+    "addNew": "새로 추가",
+    "addCurrent": "현재 추가",
+    "noEndpoints": "아직 즐겨찾는 엔드포인트가 없습니다",
+    "addEndpointTitle": "즐겨찾는 엔드포인트 추가",
+    "endpointName": "엔드포인트 이름",
+    "endpointUrl": "엔드포인트 URL",
+    "addedDate": "추가됨",
+    "loadEndpoint": "엔드포인트 로드",
+    "copyUrl": "URL 복사",
+    "delete": "삭제"
+  },
+  "common": {
+    "loading": "로딩 중...",
+    "error": "오류",
+    "success": "성공",
+    "cancel": "취소",
+    "confirm": "확인",
+    "add": "추가"
+  }
+}
