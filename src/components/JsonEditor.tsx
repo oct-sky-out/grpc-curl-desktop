@@ -11,7 +11,7 @@ import {
 import { AutoAwesome } from '@mui/icons-material'
 import { useTranslation } from 'react-i18next'
 import { ProtoMethod } from '@/types'
-import { generateDummyJson } from '@/utils/protoParser'
+import { generateDummyDataForMethod } from '@/utils/dummyDataGenerator'
 
 interface JsonEditorProps {
   method: ProtoMethod | null
@@ -24,19 +24,21 @@ const JsonEditor: React.FC<JsonEditorProps> = ({ method, value, onChange }) => {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (method && method.requestFields) {
-      const dummy = generateDummyJson(method.requestFields)
+    if (method) {
+      const dummy = generateDummyDataForMethod(method.requestFields)
       onChange(JSON.stringify(dummy, null, 2))
     }
-  }, [method, onChange])
-
+  }, [method])
+  
   const handleGenerateDummy = () => {
-    if (method && method.requestFields) {
-      const dummy = generateDummyJson(method.requestFields)
-      onChange(JSON.stringify(dummy, null, 2))
+    if (method) {
+      // Use faker-based dummy data generation with actual proto fields
+      const fakerDummy = generateDummyDataForMethod(method.requestFields)
+      onChange(JSON.stringify(fakerDummy, null, 2))
       setError(null)
     }
   }
+
 
   const handleChange = (newValue: string) => {
     onChange(newValue)
@@ -48,7 +50,7 @@ const JsonEditor: React.FC<JsonEditorProps> = ({ method, value, onChange }) => {
       }
       setError(null)
     } catch (err) {
-      setError('Invalid JSON format')
+      setError(t('request.invalidJson'))
     }
   }
 
@@ -60,7 +62,7 @@ const JsonEditor: React.FC<JsonEditorProps> = ({ method, value, onChange }) => {
             {t('request.request')}
           </Typography>
           <Alert severity="info">
-            Please select a method first
+            {t('request.selectMethodFirst')}
           </Alert>
         </CardContent>
       </Card>
@@ -80,7 +82,7 @@ const JsonEditor: React.FC<JsonEditorProps> = ({ method, value, onChange }) => {
             startIcon={<AutoAwesome />}
             onClick={handleGenerateDummy}
           >
-            Generate Dummy
+            {t('request.generateDummy')}
           </Button>
         </Box>
         

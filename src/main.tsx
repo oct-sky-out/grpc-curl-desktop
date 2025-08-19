@@ -32,7 +32,7 @@ Happy gRPC testing! 🎯
 `
 
 // Display ASCII art and welcome message
-console.log('%c' + asciiArt, 'color: #00ff00; font-family: monospace; font-weight: bold;')
+console.log('%c' + asciiArt, 'color: #1120a5ff; font-family: monospace; font-weight: bold;')
 console.log('%c' + welcomeMessage, 'color: #0066cc; font-size: 14px; font-weight: bold;')
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

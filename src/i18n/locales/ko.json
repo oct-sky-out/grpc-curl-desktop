@@ -21,7 +21,18 @@
     "copy": "응답 복사",
     "copied": "클립보드에 복사되었습니다!",
     "error": "요청에 실패했습니다",
-    "placeholder": "JSON 형태로 요청 데이터를 입력하세요"
+    "placeholder": "JSON 형태로 요청 데이터를 입력하세요",
+    "selectMethodFirst": "먼저 메서드를 선택해주세요",
+    "generateDummy": "더미 데이터 생성",
+    "invalidJson": "올바르지 않은 JSON 형식",
+    "includeDirectories": "포함 디렉토리",
+    "selectMethodAndData": "메서드를 선택하고 요청 데이터를 제공해주세요",
+    "invalidJsonError": "올바르지 않은 JSON 형식: {{message}}",
+    "checkJsonSyntax": "JSON 문법을 확인해주세요",
+    "failedToSelectIncludeDirs": "포함 디렉토리 선택에 실패했습니다",
+    "failedToCopyToClipboard": "클립보드 복사에 실패했습니다",
+    "uploadProtoFirst": "먼저 .proto 파일을 업로드해주세요",
+    "importProjectRoot": "프로젝트 루트 가져오기"
   },
   "tabs": {
     "newTab": "새 탭",

@@ -10,6 +10,7 @@ interface ImportMeta {
 
 // Electron API types
 interface ElectronAPI {
+  selectIncludeDirs: () => Promise<string[]>
   selectProtoFile: () => Promise<{
     path: string
     content: string
@@ -22,6 +23,7 @@ interface ElectronAPI {
     makeRequest: (tabId: string, methodName: string, data: any) => Promise<{ success: boolean; data?: any; error?: string }>
     disconnect: (tabId: string) => Promise<{ success: boolean }>
     getSessionStatus: (tabId: string) => Promise<{ exists: boolean; isConnected: boolean; hasProto: boolean; endpoint?: string; serviceName?: string }>
+    setIncludeDirs: (tabId: string, includeDirs: string[]) => Promise<{ success: boolean; error?: string }>
   }
   parseProto: (content: string) => Promise<{ success: boolean; data?: any; error?: string }>
   shell: {

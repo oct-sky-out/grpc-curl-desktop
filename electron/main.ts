@@ -1,7 +1,6 @@
-import { app, BrowserWindow, ipcMain, dialog, shell } from 'electron'
-import { join } from 'path'
-import { readFileSync, writeFileSync, unlinkSync } from 'fs'
-import { tmpdir } from 'os'
+import { app, BrowserWindow, ipcMain, dialog } from 'electron'
+import * as path from 'path'
+import { readFileSync } from 'fs'
 import * as grpc from '@grpc/grpc-js'
 import * as protoLoader from '@grpc/proto-loader'
 import * as protobuf from 'protobufjs'
@@ -14,9 +13,9 @@ function createWindow(): void {
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
-    icon: join(__dirname, '../public/icon.png'),
+    icon: path.join(__dirname, '../public/icon.png'),
     webPreferences: {
-      preload: join(__dirname, '../preload/preload.js'),
+      preload: path.join(__dirname, '../preload/preload.js'),
       nodeIntegration: false,
       contextIsolation: true,
       webSecurity: false,
@@ -27,7 +26,7 @@ function createWindow(): void {
     mainWindow.loadURL('http://localhost:5173')
     mainWindow.webContents.openDevTools()
   } else {
-    mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
+    mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'))
   }
 }
 
@@ -66,6 +65,31 @@ ipcMain.handle('select-proto-file', async () => {
   return null
 })
 
+ipcMain.handle('select-include-dirs', async () => {
+  const result = await dialog.showOpenDialog(mainWindow, {
+    properties: ['openDirectory', 'multiSelections'],
+    title: 'Select Include Directories'
+  })
+
+  if (!result.canceled && result.filePaths.length > 0) {
+    console.log('Selected include directories:', result.filePaths)
+    return result.filePaths
+  }
+
+  return []
+})
+
+ipcMain.handle('grpc:set-include-dirs', async (_, tabId: string, includeDirs: string[]) => {
+  try {
+    const session = getOrCreateSession(tabId)
+    session.includeDirs = includeDirs
+    return { success: true }
+  } catch (error) {
+    console.error('Failed to set include dirs:', error)
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
+  }
+})
+
 ipcMain.handle('copy-to-clipboard', async (_, text: string) => {
   const { clipboard } = await import('electron')
   clipboard.writeText(text)
@@ -81,6 +105,7 @@ interface GrpcSession {
   endpoint?: string
   serviceName?: string
   isConnected: boolean
+  includeDirs?: string[]
 }
 
 const grpcSessions = new Map<string, GrpcSession>()
@@ -103,13 +128,24 @@ ipcMain.handle('grpc:load-proto', async (_, tabId: string, filePath: string) => 
   try {
     const session = getOrCreateSession(tabId)
     
-    const packageDefinition = protoLoader.loadSync(filePath, {
+    const loadOptions: protoLoader.Options = {
       keepCase: true,
       longs: String,
       enums: String,
       defaults: true,
       oneofs: true,
-    })
+    }
+    
+    // Add includeDirs if available
+    if (session.includeDirs && session.includeDirs.length > 0) {
+      console.log('Using include dirs:', session.includeDirs)
+      console.log(path.dirname(filePath))
+      loadOptions.includeDirs = [...session.includeDirs, path.dirname(filePath)]
+    } else {
+      loadOptions.includeDirs = [path.dirname(filePath)]
+    }
+    
+    const packageDefinition = protoLoader.loadSync(filePath, loadOptions)
 
     session.protoPath = filePath
     session.packageDefinition = packageDefinition
@@ -251,19 +287,36 @@ ipcMain.handle('parse-proto', async (_, content: string) => {
             const inputType = method.requestType
             const outputType = method.responseType
             
+            // Helper function to extract nested field structure
+            const extractFields = (message: protobuf.Type): any[] => {
+              return message.fieldsArray.map((field) => {
+                const fieldInfo: any = {
+                  name: field.name,
+                  type: field.type,
+                  required: field.required,
+                  repeated: field.repeated,
+                }
+                
+                // Check if this field is a nested message type
+                try {
+                  const nestedType = root.lookupType(field.type)
+                  if (nestedType && nestedType.fieldsArray.length > 0) {
+                    fieldInfo.nestedFields = extractFields(nestedType)
+                  }
+                } catch (e) {
+                  // Not a nested message type, just a primitive
+                }
+                
+                return fieldInfo
+              })
+            }
+
             // Find the message type for request fields
             const requestMessage = root.lookupType(inputType)
             const requestFields: any[] = []
             
             if (requestMessage) {
-              requestMessage.fieldsArray.forEach((field) => {
-                requestFields.push({
-                  name: field.name,
-                  type: field.type,
-                  required: field.required,
-                  repeated: field.repeated,
-                })
-              })
+              requestFields.push(...extractFields(requestMessage))
             }
 
             methods.push({

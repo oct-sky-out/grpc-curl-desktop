@@ -21,7 +21,18 @@
     "copy": "Copy Response",
     "copied": "Copied to clipboard!",
     "error": "Request failed",
-    "placeholder": "Enter request data as JSON"
+    "placeholder": "Enter request data as JSON",
+    "selectMethodFirst": "Please select a method first",
+    "generateDummy": "Generate Dummy",
+    "invalidJson": "Invalid JSON format",
+    "includeDirectories": "Include Dirs",
+    "selectMethodAndData": "Please select a method and provide request data",
+    "invalidJsonError": "Invalid JSON format: {{message}}",
+    "checkJsonSyntax": "Please check your JSON syntax",
+    "failedToSelectIncludeDirs": "Failed to select include directories",
+    "failedToCopyToClipboard": "Failed to copy to clipboard",
+    "uploadProtoFirst": "Please upload a .proto file first",
+    "importProjectRoot": "import Project root"
   },
   "tabs": {
     "newTab": "New Tab",

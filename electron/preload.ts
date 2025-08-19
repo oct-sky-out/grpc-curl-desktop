@@ -6,6 +6,7 @@ export interface ElectronAPI {
     content: string
     name: string
   } | null>
+  selectIncludeDirs: () => Promise<string[]>
   copyToClipboard: (text: string) => Promise<boolean>
   grpc: {
     loadProto: (tabId: string, filePath: string) => Promise<{ success: boolean; error?: string }>
@@ -13,6 +14,7 @@ export interface ElectronAPI {
     makeRequest: (tabId: string, methodName: string, data: any) => Promise<{ success: boolean; data?: any; error?: string }>
     disconnect: (tabId: string) => Promise<{ success: boolean }>
     getSessionStatus: (tabId: string) => Promise<{ exists: boolean; isConnected: boolean; hasProto: boolean; endpoint?: string; serviceName?: string }>
+    setIncludeDirs: (tabId: string, includeDirs: string[]) => Promise<{ success: boolean; error?: string }>
   }
   parseProto: (content: string) => Promise<{ success: boolean; data?: any; error?: string }>
   shell: {
@@ -22,6 +24,7 @@ export interface ElectronAPI {
 
 contextBridge.exposeInMainWorld('electronAPI', {
   selectProtoFile: () => ipcRenderer.invoke('select-proto-file'),
+  selectIncludeDirs: () => ipcRenderer.invoke('select-include-dirs'),
   copyToClipboard: (text: string) => ipcRenderer.invoke('copy-to-clipboard', text),
   grpc: {
     loadProto: (tabId: string, filePath: string) => ipcRenderer.invoke('grpc:load-proto', tabId, filePath),
@@ -29,6 +32,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     makeRequest: (tabId: string, methodName: string, data: any) => ipcRenderer.invoke('grpc:make-request', tabId, methodName, data),
     disconnect: (tabId: string) => ipcRenderer.invoke('grpc:disconnect', tabId),
     getSessionStatus: (tabId: string) => ipcRenderer.invoke('grpc:get-session-status', tabId),
+    setIncludeDirs: (tabId: string, includeDirs: string[]) => ipcRenderer.invoke('grpc:set-include-dirs', tabId, includeDirs),
   },
   parseProto: (content: string) => ipcRenderer.invoke('parse-proto', content),
   shell: {

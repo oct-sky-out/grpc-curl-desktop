@@ -51,8 +51,9 @@ const MethodList: React.FC<MethodListProps> = ({
         <Typography variant="h6" gutterBottom>
           {t('proto.methods')}
         </Typography>
-        <List dense>
-          {methods.map((method, index) => (
+        <Box sx={{ maxHeight: '400px', overflow: 'auto' }}>
+          <List dense>
+            {methods.map((method, index) => (
             <ListItem key={index} disablePadding>
               <ListItemButton
                 selected={selectedMethod?.name === method.name}
@@ -82,7 +83,8 @@ const MethodList: React.FC<MethodListProps> = ({
               </ListItemButton>
             </ListItem>
           ))}
-        </List>
+          </List>
+        </Box>
       </CardContent>
     </Card>
   )

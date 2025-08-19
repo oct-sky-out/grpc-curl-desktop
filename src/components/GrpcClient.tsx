@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react'
-import { Grid, Box, TextField, Button, Alert } from '@mui/material'
-import { Send } from '@mui/icons-material'
+import { Grid, Box, TextField, Button, Alert, Chip } from '@mui/material'
+import { Send, FolderOpen } from '@mui/icons-material'
 import { useTranslation } from 'react-i18next'
 import { useGrpc } from '@/contexts/GrpcContext'
 import MethodList from './MethodList'
@@ -25,10 +25,19 @@ const GrpcClient: React.FC = () => {
 
   const [requestLoading, setRequestLoading] = useState(false)
   const [copySuccess, setCopySuccess] = useState(false)
+  const [includeDirs, setIncludeDirs] = useState<string[]>([])
   const grpcClient = useMemo(() => 
     new GrpcClientUtil(currentTab?.id || 'default'), 
     [currentTab?.id]
   )
+
+  // Update includeDirs in backend when they change
+  useEffect(() => {
+    if (currentTab?.id && includeDirs.length > 0) {
+      window.electronAPI.grpc.setIncludeDirs(currentTab.id, includeDirs)
+        .catch(error => console.error('Failed to set include dirs:', error))
+    }
+  }, [currentTab?.id, includeDirs])
 
   // Use tab-specific data
   const selectedMethod = currentTab?.selectedMethod || null
@@ -52,9 +61,20 @@ const GrpcClient: React.FC = () => {
     }
   }
 
+  const handleSelectIncludeDirs = async () => {
+    try {
+      const result = await window.electronAPI.selectIncludeDirs()
+      if (result && result.length > 0) {
+        setIncludeDirs(result)
+      }
+    } catch (error) {
+      setError(t('request.failedToSelectIncludeDirs'))
+    }
+  }
+
   const handleSendRequest = async () => {
     if (!selectedMethod || !protoFile || !requestData.trim()) {
-      setError('Please select a method and provide request data')
+      setError(t('request.selectMethodAndData'))
       return
     }
 
@@ -64,10 +84,20 @@ const GrpcClient: React.FC = () => {
     
     try {
       // Parse request data
-      const data = JSON.parse(requestData)
+      let data
+      try {
+        data = JSON.parse(requestData)
+      } catch (parseError) {
+        setResponse({
+          data: null,
+          error: t('request.invalidJsonError', { 
+            message: parseError instanceof Error ? parseError.message : t('request.checkJsonSyntax')
+          }),
+          status: 'ERROR',
+        })
+        return
+      }
       
-      console.log('Current tab ID:', currentTab?.id)
-      console.log('Proto file path:', protoFile.path)
       
       // Load proto file into gRPC client
       await grpcClient.loadProto(protoFile.path)
@@ -110,14 +140,14 @@ const GrpcClient: React.FC = () => {
       setCopySuccess(true)
       setTimeout(() => setCopySuccess(false), 2000)
     } catch (error) {
-      setError('Failed to copy to clipboard')
+      setError(t('request.failedToCopyToClipboard'))
     }
   }
 
   if (!protoFile) {
     return (
       <Alert severity="info">
-        Please upload a .proto file first
+        {t('request.uploadProtoFirst')}
       </Alert>
     )
   }
@@ -135,6 +165,32 @@ const GrpcClient: React.FC = () => {
         </Grid>
         
         <Grid item xs={12} md={8}>
+          <Box sx={{ mb: 2, display: 'flex', gap: 2, alignItems: 'center' }}>
+            <Button
+              variant="outlined"
+              startIcon={<FolderOpen />}
+              onClick={handleSelectIncludeDirs}
+              size="small"
+            >
+              {t('request.importProjectRoot')}
+            </Button>
+            {includeDirs.length > 0 && (
+              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                {includeDirs.map((dir, index) => (
+                  <Chip
+                    key={index}
+                    label={dir.split('/').pop()}
+                    size="small"
+                    onDelete={() => {
+                      setIncludeDirs(dirs => dirs.filter((_, i) => i !== index))
+                    }}
+                    title={dir}
+                  />
+                ))}
+              </Box>
+            )}
+          </Box>
+          
           <Box sx={{ mb: 2 }}>
             <TextField
               fullWidth

@@ -17,6 +17,7 @@ export interface ProtoField {
   type: string
   required: boolean
   repeated: boolean
+  nestedFields?: ProtoField[]
 }
 
 export interface GrpcRequest {

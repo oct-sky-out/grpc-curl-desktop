@@ -21,7 +21,18 @@
     "copy": "レスポンスをコピー",
     "copied": "クリップボードにコピーしました！",
     "error": "リクエストが失敗しました",
-    "placeholder": "JSON形式でリクエストデータを入力してください"
+    "placeholder": "JSON形式でリクエストデータを入力してください",
+    "selectMethodFirst": "最初にメソッドを選択してください",
+    "generateDummy": "ダミーデータ生成",
+    "invalidJson": "無効なJSON形式",
+    "includeDirectories": "インクルードディレクトリ",
+    "selectMethodAndData": "メソッドを選択してリクエストデータを提供してください",
+    "invalidJsonError": "無効なJSON形式: {{message}}",
+    "checkJsonSyntax": "JSON構文を確認してください",
+    "failedToSelectIncludeDirs": "インクルードディレクトリの選択に失敗しました",
+    "failedToCopyToClipboard": "クリップボードへのコピーに失敗しました",
+    "uploadProtoFirst": "最初に.protoファイルをアップロードしてください",
+    "importProjectRoot": "プロジェクトルートをインポート"
   },
   "tabs": {
     "newTab": "新しいタブ",
