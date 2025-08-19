@@ -51,4 +51,6 @@ export default defineConfig({
       external: ['@grpc/grpc-js', '@grpc/proto-loader', 'protobufjs'],
     },
   },
+  // Ensure public directory files are copied to dist
+  publicDir: 'public',
 })

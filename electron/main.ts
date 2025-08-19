@@ -145,8 +145,15 @@ ipcMain.handle('grpc:load-proto', async (_, tabId: string, filePath: string) => 
       const paths: string[] = []
       
       // First priority: bundled proto files in the app
-      const appPath = isDev ? process.cwd() : app.getAppPath()
-      const bundledProtoPath = path.join(appPath, 'public', 'proto')
+      let bundledProtoPath: string
+      
+      if (isDev) {
+        // Development: use public directory
+        bundledProtoPath = path.join(process.cwd(), 'public', 'proto')
+      } else {
+        // Production: proto files are in resources/proto
+        bundledProtoPath = path.join(process.resourcesPath, 'proto')
+      }
       
       if (existsSync(bundledProtoPath)) {
         paths.push(bundledProtoPath)
@@ -226,12 +233,13 @@ ipcMain.handle('grpc:load-proto', async (_, tabId: string, filePath: string) => 
         console.log('Tried include directories:', loadOptions.includeDirs)
         
         // Try with additional fallback directories
-        const appPath = isDev ? process.cwd() : app.getAppPath()
         const fallbackDirs = [
-          path.join(appPath, 'public', 'proto'),     // Bundled proto files
-          path.join(__dirname, '..', 'proto'),       // App relative protos
-          path.join(__dirname, '..', 'public', 'proto'), // Alternative bundled location
-          path.join(process.cwd(), 'proto'),         // Project proto directory
+          isDev 
+            ? path.join(process.cwd(), 'public', 'proto')
+            : path.join(process.resourcesPath, 'proto'),  // Main bundled location
+          path.join(__dirname, '..', 'proto'),           // App relative protos
+          path.join(__dirname, '..', 'public', 'proto'), // Alternative dev location
+          path.join(process.cwd(), 'proto'),             // Project proto directory
         ]
         
         const extendedIncludeDirs = [...(loadOptions.includeDirs || []), ...fallbackDirs]

@@ -68,8 +68,13 @@
     },
     "files": [
       "dist/**/*",
-      "package.json",
-      "public/**/*"
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "public/proto",
+        "to": "proto"
+      }
     ],
     "mac": {
       "category": "public.app-category.developer-tools",
