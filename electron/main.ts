@@ -1,6 +1,6 @@
 import { app, BrowserWindow, ipcMain, dialog } from 'electron'
 import * as path from 'path'
-import { readFileSync } from 'fs'
+import { readFileSync, existsSync, readdirSync } from 'fs'
 import * as grpc from '@grpc/grpc-js'
 import * as protoLoader from '@grpc/proto-loader'
 import * as protobuf from 'protobufjs'
@@ -134,18 +134,101 @@ ipcMain.handle('grpc:load-proto', async (_, tabId: string, filePath: string) => 
       enums: String,
       defaults: true,
       oneofs: true,
+      // Enable loading of Google well-known types
+      json: true,
+      // Allow alternative parsing if standard fails
+      alternateCommentMode: true,
     }
     
+    // Get default include directories for Google well-known types
+    const getGoogleProtoIncludeDirs = (): string[] => {
+      const paths: string[] = []
+      
+      // Try to find protobufjs google proto files in node_modules
+      const nodeModulesBase = path.join(process.cwd(), 'node_modules')
+      
+      // Check direct protobufjs installation
+      const directProtobufjs = path.join(nodeModulesBase, 'protobufjs')
+      if (existsSync(directProtobufjs)) {
+        paths.push(directProtobufjs)
+      }
+      
+      // Check pnpm structure
+      const pnpmDir = path.join(nodeModulesBase, '.pnpm')
+      if (existsSync(pnpmDir)) {
+        try {
+          const pnpmDirs = readdirSync(pnpmDir)
+          for (const dir of pnpmDirs) {
+            if (dir.startsWith('protobufjs@')) {
+              const protobufjsPath = path.join(pnpmDir, dir, 'node_modules', 'protobufjs')
+              if (existsSync(protobufjsPath)) {
+                paths.push(protobufjsPath)
+                break // Use the first one found
+              }
+            }
+          }
+        } catch (error) {
+          console.warn('Failed to scan pnpm directory:', error)
+        }
+      }
+      
+      // Common system paths where protobuf might be installed
+      const systemPaths = [
+        '/usr/local/include',
+        '/usr/include', 
+        '/opt/homebrew/include'
+      ]
+      
+      for (const systemPath of systemPaths) {
+        if (existsSync(systemPath)) {
+          paths.push(systemPath)
+        }
+      }
+      
+      return paths
+    }
+
     // Add includeDirs if available
-    if (session.includeDirs && session.includeDirs.length > 0) {
-      console.log('Using include dirs:', session.includeDirs)
-      console.log(path.dirname(filePath))
-      loadOptions.includeDirs = [...session.includeDirs, path.dirname(filePath)]
-    } else {
-      loadOptions.includeDirs = [path.dirname(filePath)]
-    }
+    const googleProtoPaths = getGoogleProtoIncludeDirs()
+    const userIncludeDirs = session.includeDirs || []
+    const protoFileDir = path.dirname(filePath)
     
-    const packageDefinition = protoLoader.loadSync(filePath, loadOptions)
+    loadOptions.includeDirs = [
+      protoFileDir,           // Current proto file directory (highest priority)
+      ...userIncludeDirs,     // User selected directories  
+      ...googleProtoPaths,    // Google well-known types (fallback)
+      '.'                     // Current working directory (lowest priority)
+    ]
+    
+    console.log('Using include dirs:', loadOptions.includeDirs)
+    
+    let packageDefinition
+    try {
+      packageDefinition = protoLoader.loadSync(filePath, loadOptions)
+    } catch (loadError: any) {
+      // Check if error is related to Google protobuf imports
+      if (loadError.message?.includes('google/protobuf') || 
+          loadError.message?.includes('Import') ||
+          loadError.message?.includes('not found')) {
+        
+        console.error('Proto loading failed, likely due to missing Google protobuf imports:', loadError.message)
+        console.log('Tried include directories:', loadOptions.includeDirs)
+        
+        // Try with additional fallback directories
+        const fallbackDirs = [
+          path.join(__dirname, '..', 'proto'), // App bundled protos
+          path.join(process.cwd(), 'proto'),   // Project proto directory
+        ]
+        
+        const extendedIncludeDirs = [...(loadOptions.includeDirs || []), ...fallbackDirs]
+        const fallbackOptions = { ...loadOptions, includeDirs: extendedIncludeDirs }
+        
+        console.log('Retrying with extended include directories:', fallbackOptions.includeDirs)
+        packageDefinition = protoLoader.loadSync(filePath, fallbackOptions)
+      } else {
+        throw loadError
+      }
+    }
 
     session.protoPath = filePath
     session.packageDefinition = packageDefinition
