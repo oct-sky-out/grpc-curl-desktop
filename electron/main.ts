@@ -144,35 +144,46 @@ ipcMain.handle('grpc:load-proto', async (_, tabId: string, filePath: string) => 
     const getGoogleProtoIncludeDirs = (): string[] => {
       const paths: string[] = []
       
-      // Try to find protobufjs google proto files in node_modules
-      const nodeModulesBase = path.join(process.cwd(), 'node_modules')
+      // First priority: bundled proto files in the app
+      const appPath = isDev ? process.cwd() : app.getAppPath()
+      const bundledProtoPath = path.join(appPath, 'public', 'proto')
       
-      // Check direct protobufjs installation
-      const directProtobufjs = path.join(nodeModulesBase, 'protobufjs')
-      if (existsSync(directProtobufjs)) {
-        paths.push(directProtobufjs)
+      if (existsSync(bundledProtoPath)) {
+        paths.push(bundledProtoPath)
+        console.log('Using bundled proto files at:', bundledProtoPath)
       }
       
-      // Check pnpm structure
-      const pnpmDir = path.join(nodeModulesBase, '.pnpm')
-      if (existsSync(pnpmDir)) {
-        try {
-          const pnpmDirs = readdirSync(pnpmDir)
-          for (const dir of pnpmDirs) {
-            if (dir.startsWith('protobufjs@')) {
-              const protobufjsPath = path.join(pnpmDir, dir, 'node_modules', 'protobufjs')
-              if (existsSync(protobufjsPath)) {
-                paths.push(protobufjsPath)
-                break // Use the first one found
+      // Second priority: try to find protobufjs google proto files in node_modules (dev only)
+      if (isDev) {
+        const nodeModulesBase = path.join(process.cwd(), 'node_modules')
+        
+        // Check direct protobufjs installation
+        const directProtobufjs = path.join(nodeModulesBase, 'protobufjs')
+        if (existsSync(directProtobufjs)) {
+          paths.push(directProtobufjs)
+        }
+        
+        // Check pnpm structure
+        const pnpmDir = path.join(nodeModulesBase, '.pnpm')
+        if (existsSync(pnpmDir)) {
+          try {
+            const pnpmDirs = readdirSync(pnpmDir)
+            for (const dir of pnpmDirs) {
+              if (dir.startsWith('protobufjs@')) {
+                const protobufjsPath = path.join(pnpmDir, dir, 'node_modules', 'protobufjs')
+                if (existsSync(protobufjsPath)) {
+                  paths.push(protobufjsPath)
+                  break // Use the first one found
+                }
               }
             }
+          } catch (error) {
+            console.warn('Failed to scan pnpm directory:', error)
           }
-        } catch (error) {
-          console.warn('Failed to scan pnpm directory:', error)
         }
       }
       
-      // Common system paths where protobuf might be installed
+      // Third priority: common system paths where protobuf might be installed
       const systemPaths = [
         '/usr/local/include',
         '/usr/include', 
@@ -215,9 +226,12 @@ ipcMain.handle('grpc:load-proto', async (_, tabId: string, filePath: string) => 
         console.log('Tried include directories:', loadOptions.includeDirs)
         
         // Try with additional fallback directories
+        const appPath = isDev ? process.cwd() : app.getAppPath()
         const fallbackDirs = [
-          path.join(__dirname, '..', 'proto'), // App bundled protos
-          path.join(process.cwd(), 'proto'),   // Project proto directory
+          path.join(appPath, 'public', 'proto'),     // Bundled proto files
+          path.join(__dirname, '..', 'proto'),       // App relative protos
+          path.join(__dirname, '..', 'public', 'proto'), // Alternative bundled location
+          path.join(process.cwd(), 'proto'),         // Project proto directory
         ]
         
         const extendedIncludeDirs = [...(loadOptions.includeDirs || []), ...fallbackDirs]
