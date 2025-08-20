@@ -172,7 +172,7 @@ const GrpcClient: React.FC = () => {
               onClick={handleSelectIncludeDirs}
               size="small"
             >
-              {t('request.importProjectRoot')}
+              {t('request.includeDirectories')} ({includeDirs.length})
             </Button>
             {includeDirs.length > 0 && (
               <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
