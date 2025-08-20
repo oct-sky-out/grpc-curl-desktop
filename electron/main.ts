@@ -251,9 +251,25 @@ ipcMain.handle('grpc:create-client', async (_, tabId: string, endpoint: string, 
       }
     }
     
-    // Create gRPC client
+    // Create gRPC client with appropriate credentials
     const clientConstructor = grpc.makeGenericClientConstructor(serviceDefinition, serviceName)
-    const client = new clientConstructor(endpoint, grpc.credentials.createInsecure())
+    
+    // Determine if we should use SSL/TLS
+    const useSSL = endpoint.includes('https://') || 
+                   endpoint.includes(':443') || 
+                   endpoint.endsWith(':443') ||
+                   (!endpoint.includes(':') && !endpoint.includes('localhost') && !endpoint.startsWith('127.0.0.1'))
+    
+    // Clean up endpoint URL (remove https:// prefix if present)
+    const cleanEndpoint = endpoint.replace(/^https?:\/\//, '')
+    
+    console.log('Using SSL:', useSSL, 'for endpoint:', cleanEndpoint)
+    
+    const credentials = useSSL 
+      ? grpc.credentials.createSsl() 
+      : grpc.credentials.createInsecure()
+    
+    const client = new clientConstructor(cleanEndpoint, credentials)
     
     session.client = client
     session.endpoint = endpoint
@@ -323,15 +339,97 @@ ipcMain.handle('grpc:get-session-status', async (_, tabId: string) => {
 })
 
 // Proto parsing for UI
-ipcMain.handle('parse-proto', async (_, content: string) => {
+ipcMain.handle('parse-proto', async (_, content: string, filePath?: string, tabId?: string) => {
   try {
-    const parsed = protobuf.parse(content)
-    const root = parsed.root
+    // If filePath is provided, use it for better import resolution
+    let root: protobuf.Root
+    let packageName = ''
+    
+    if (filePath) {
+      // Use file-based loading with custom resolver for better import support
+      root = new protobuf.Root()
+      
+      // Get user's include directories if tabId is provided
+      let userIncludeDirs: string[] = []
+      if (tabId) {
+        const session = grpcSessions.get(tabId)
+        userIncludeDirs = session?.includeDirs || []
+      }
+      
+      // Build include paths (similar to grpc:load-proto)
+      const includePaths = [
+        path.dirname(filePath),
+        path.dirname(path.dirname(filePath)),
+        ...userIncludeDirs, // User selected directories
+        process.cwd(),
+        path.join(process.cwd(), 'proto'),
+      ]
+      
+      // Add protobufjs built-in google types path if available
+      try {
+        const protobufModulePath = require.resolve('protobufjs')
+        const protobufDir = path.dirname(protobufModulePath)
+        includePaths.push(protobufDir)
+      } catch (e) {
+        // skip
+      }
+      
+      // Set up custom resolver
+      root.resolvePath = (origin: string, target: string) => {
+        console.log(`[parse-proto] Resolving import: ${target} from ${origin}`)
+        
+        // Try relative to origin file first
+        if (origin) {
+          const relativePath = path.resolve(path.dirname(origin), target)
+          try {
+            const fs = require('fs')
+            if (fs.existsSync(relativePath)) {
+              console.log(`[parse-proto] Found at: ${relativePath}`)
+              return relativePath
+            }
+          } catch (e) {
+            // Continue to next attempt
+          }
+        }
+        
+        // Try each include path
+        for (const includePath of includePaths) {
+          const fullPath = path.resolve(includePath, target)
+          try {
+            const fs = require('fs')
+            if (fs.existsSync(fullPath)) {
+              console.log(`[parse-proto] Found at: ${fullPath}`)
+              return fullPath
+            }
+          } catch (e) {
+            // Continue to next path
+          }
+        }
+        
+        // Fallback to default resolution
+        console.log(`[parse-proto] Using default resolution for: ${target}`)
+        return target
+      }
+      
+      await root.load(filePath)
+      
+      // Extract package name from loaded root
+      const namespaces = Array.from(root.nestedArray)
+      for (const namespace of namespaces) {
+        if (namespace.name && namespace.name !== '') {
+          packageName = namespace.name
+          break
+        }
+      }
+    } else {
+      // Fallback to content-based parsing
+      const parsed = protobuf.parse(content)
+      root = parsed.root
+      packageName = parsed.package || ''
+    }
+    
     const methods: any[] = []
     const services: any[] = []
-    
-    // Extract package name
-    const packageName = parsed.package || ''
 
     const findServices = (namespace: protobuf.Namespace, parentPath = '') => {
       namespace.nestedArray.forEach((nested) => {

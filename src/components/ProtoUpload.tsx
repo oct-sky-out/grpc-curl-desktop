@@ -40,7 +40,7 @@ const ProtoUpload: React.FC = () => {
         setProtoFile(file)
         
         // Parse the proto file and extract methods
-        const protoInfo = await parseProtoFile(file.content)
+        const protoInfo = await parseProtoFile(file.content, file.path)
         setPackageName(protoInfo.package)
         setServices(protoInfo.services)
         setMethods(protoInfo.methods)

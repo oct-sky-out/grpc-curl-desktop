@@ -25,7 +25,7 @@ interface ElectronAPI {
     getSessionStatus: (tabId: string) => Promise<{ exists: boolean; isConnected: boolean; hasProto: boolean; endpoint?: string; serviceName?: string }>
     setIncludeDirs: (tabId: string, includeDirs: string[]) => Promise<{ success: boolean; error?: string }>
   }
-  parseProto: (content: string) => Promise<{ success: boolean; data?: any; error?: string }>
+  parseProto: (content: string, filePath?: string, tabId?: string) => Promise<{ success: boolean; data?: any; error?: string }>
   shell: {
     openExternal: (url: string) => Promise<void>
   }

@@ -16,7 +16,7 @@ export interface ElectronAPI {
     getSessionStatus: (tabId: string) => Promise<{ exists: boolean; isConnected: boolean; hasProto: boolean; endpoint?: string; serviceName?: string }>
     setIncludeDirs: (tabId: string, includeDirs: string[]) => Promise<{ success: boolean; error?: string }>
   }
-  parseProto: (content: string) => Promise<{ success: boolean; data?: any; error?: string }>
+  parseProto: (content: string, filePath?: string, tabId?: string) => Promise<{ success: boolean; data?: any; error?: string }>
   shell: {
     openExternal: (url: string) => Promise<void>
   }
@@ -34,7 +34,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getSessionStatus: (tabId: string) => ipcRenderer.invoke('grpc:get-session-status', tabId),
     setIncludeDirs: (tabId: string, includeDirs: string[]) => ipcRenderer.invoke('grpc:set-include-dirs', tabId, includeDirs),
   },
-  parseProto: (content: string) => ipcRenderer.invoke('parse-proto', content),
+  parseProto: (content: string, filePath?: string, tabId?: string) => ipcRenderer.invoke('parse-proto', content, filePath, tabId),
   shell: {
     openExternal: (url: string) => shell.openExternal(url),
   }

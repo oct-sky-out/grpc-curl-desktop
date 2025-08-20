@@ -12,9 +12,9 @@ export interface ServiceInfo {
   methods: string[]
 }
 
-export const parseProtoFile = async (content: string): Promise<ProtoInfo> => {
+export const parseProtoFile = async (content: string, filePath?: string, tabId?: string): Promise<ProtoInfo> => {
   try {
-    const result = await window.electronAPI.parseProto(content)
+    const result = await window.electronAPI.parseProto(content, filePath, tabId)
     
     if (!result.success) {
       throw new Error(result.error || 'Failed to parse proto file')
