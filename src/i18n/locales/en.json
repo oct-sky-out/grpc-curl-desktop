@@ -12,6 +12,7 @@
     "parsing": "Parsing proto file...",
     "error": "Failed to parse proto file",
     "importError": "Failed to resolve imports. Please setup include directories first.",
+    "importErrorWithPaths": "Failed to resolve imports. Please check your include directory paths.",
     "setupRequired": "Setup include paths first if your .proto files have imports",
     "setupIncludePaths": "Setup Include Paths",
     "includePathsSet": "Include paths configured",

@@ -12,6 +12,7 @@
     "parsing": "proto ファイルを解析中...",
     "error": "proto ファイルの解析に失敗しました",
     "importError": "import の解決に失敗しました。まずインクルードディレクトリを設定してください。",
+    "importErrorWithPaths": "import の解決に失敗しました。インクルードディレクトリのパスを確認してください。",
     "setupRequired": ".proto ファイルに import がある場合は、まずインクルードパスを設定してください",
     "setupIncludePaths": "インクルードパス設定",
     "includePathsSet": "インクルードパスが設定されました",

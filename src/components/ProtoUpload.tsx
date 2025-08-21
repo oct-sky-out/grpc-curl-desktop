@@ -73,8 +73,14 @@ const ProtoUpload: React.FC = () => {
       
       // Check if the error is related to import resolution
       const errorMessage = err?.message || ''
-      if (errorMessage.includes('import') || errorMessage.includes('not found') || errorMessage.includes('resolve')) {
-        setError(t('proto.importError', 'Failed to resolve imports. Please setup include directories first.'))
+      if (errorMessage.includes('import') || errorMessage.includes('not found') || errorMessage.includes('resolve') || errorMessage.includes('ENOENT')) {
+        if (!includeDirsSet) {
+          setError(t('proto.importError', 'Failed to resolve imports. Please setup include directories first.'))
+          // Show setup dialog automatically
+          setShowProjectSetup(true)
+        } else {
+          setError(t('proto.importErrorWithPaths', 'Failed to resolve imports. Please check your include directory paths.'))
+        }
       } else {
         setError(t('proto.error', 'Failed to parse proto file'))
       }
