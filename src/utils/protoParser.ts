@@ -59,9 +59,55 @@ export const generateDummyJson = (fields: ProtoField[]): any => {
       case 'bytes':
         value = field.repeated ? ['base64data'] : 'base64data'
         break
-      default:
-        // For custom message types
+      // Google well-known types
+      case 'google.protobuf.Timestamp':
+        value = field.repeated 
+          ? [{ seconds: Math.floor(Date.now() / 1000), nanos: 0 }] 
+          : { seconds: Math.floor(Date.now() / 1000), nanos: 0 }
+        break
+      case 'google.protobuf.Duration':
+        value = field.repeated 
+          ? [{ seconds: 300, nanos: 0 }] 
+          : { seconds: 300, nanos: 0 }
+        break
+      case 'google.protobuf.Empty':
         value = field.repeated ? [{}] : {}
+        break
+      case 'google.protobuf.StringValue':
+        value = field.repeated 
+          ? [{ value: 'example' }] 
+          : { value: 'example' }
+        break
+      case 'google.protobuf.Int32Value':
+      case 'google.protobuf.Int64Value':
+        value = field.repeated 
+          ? [{ value: 123 }] 
+          : { value: 123 }
+        break
+      case 'google.protobuf.BoolValue':
+        value = field.repeated 
+          ? [{ value: true }] 
+          : { value: true }
+        break
+      case 'google.protobuf.Any':
+        value = field.repeated 
+          ? [{ type_url: 'type.googleapis.com/example.Type', value: 'example' }] 
+          : { type_url: 'type.googleapis.com/example.Type', value: 'example' }
+        break
+      case 'google.protobuf.Struct':
+        value = field.repeated 
+          ? [{ fields: { example: { string_value: 'value' } } }] 
+          : { fields: { example: { string_value: 'value' } } }
+        break
+      default:
+        // For custom message types and unknown types
+        if (field.type.startsWith('google.protobuf.')) {
+          // Handle other Google types with generic wrapper
+          value = field.repeated ? [{ value: 'example' }] : { value: 'example' }
+        } else {
+          // Custom message types
+          value = field.repeated ? [{}] : {}
+        }
         break
     }
     

@@ -29,10 +29,33 @@ const createServiceDefinition = (service: protobuf.Service, root: protobuf.Root)
       requestSerialize: (value: any) => {
         const requestType = root.lookupType(methodObj.requestType)
         try {
-          const message = requestType.create(value)
+          // First validate and prepare the value
+          let processedValue = value
+          
+          // Handle common protobuf conversion issues
+          if (typeof value === 'string') {
+            try {
+              processedValue = JSON.parse(value)
+            } catch (e) {
+              // If it's not JSON, treat as string field
+              processedValue = { value: value }
+            }
+          }
+          
+          // Use fromObject for better JSON to protobuf conversion with validation
+          const message = requestType.fromObject(processedValue)
+          
+          // Verify the message is valid
+          const verifyResult = requestType.verify(processedValue)
+          if (verifyResult) {
+            throw new Error(`Message verification failed: ${verifyResult}`)
+          }
+          
           return requestType.encode(message).finish()
         } catch (error) {
           console.error(`Failed to serialize ${methodObj.requestType}:`, error)
+          console.error(`Input value:`, JSON.stringify(value, null, 2))
+          console.error(`Request type fields:`, requestType.fieldsArray.map(f => `${f.name}:${f.type}`))
           throw error
         }
       },

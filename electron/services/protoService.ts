@@ -4,8 +4,18 @@ import { buildIncludePaths, createPathResolver } from '../utils/pathUtils'
 
 export const loadProtoFile = async (filePath: string, userIncludeDirs: string[] = []): Promise<ServiceResult<protobuf.Root>> => {
   return wrapAsync(async () => {
+    // Create root and try to load common types
     const root = new protobuf.Root()
     const includePaths = buildIncludePaths(filePath, userIncludeDirs)
+    
+    // Try to load common Google types if available
+    try {
+      if (protobuf.common) {
+        root.addJSON(protobuf.common as any)
+      }
+    } catch (e) {
+      console.warn('Could not load common protobuf types:', e)
+    }
     
     root.resolvePath = createPathResolver(includePaths)
     
