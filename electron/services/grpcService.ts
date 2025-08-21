@@ -42,14 +42,9 @@ const createServiceDefinition = (service: protobuf.Service, root: protobuf.Root)
             }
           }
           
-          // Use fromObject for better JSON to protobuf conversion with validation
+          // First create a basic message, then apply fromObject for better type conversion
+          const baseMessage = requestType.create(processedValue)
           const message = requestType.fromObject(processedValue)
-          
-          // Verify the message is valid
-          const verifyResult = requestType.verify(processedValue)
-          if (verifyResult) {
-            throw new Error(`Message verification failed: ${verifyResult}`)
-          }
           
           return requestType.encode(message).finish()
         } catch (error) {
