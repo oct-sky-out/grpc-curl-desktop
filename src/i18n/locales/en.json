@@ -10,7 +10,12 @@
     "methods": "Available Services",
     "noMethods": "No methods found",
     "parsing": "Parsing proto file...",
-    "error": "Failed to parse proto file"
+    "error": "Failed to parse proto file",
+    "importError": "Failed to resolve imports. Please setup include directories first.",
+    "setupRequired": "Setup include paths first if your .proto files have imports",
+    "setupIncludePaths": "Setup Include Paths",
+    "includePathsSet": "Include paths configured",
+    "reconfigureIncludePaths": "Reconfigure Include Paths"
   },
   "request": {
     "method": "Method",
@@ -58,5 +63,21 @@
     "cancel": "Cancel",
     "confirm": "Confirm",
     "add": "Add"
+  },
+  "project": {
+    "setup": {
+      "title": "Project Setup",
+      "info": {
+        "title": "Why setup include directories?",
+        "description": "If your .proto files import other .proto files from different directories, you need to specify those directories so they can be resolved correctly."
+      },
+      "includeDirectories": "Include Directories",
+      "includeDirectories.description": "Select directories that contain .proto files that might be imported by your main .proto file.",
+      "addDirectory": "Add Include Directory",
+      "noDirectories": "No include directories selected",
+      "canSkip": "If your .proto file doesn't import anything or all imports are in the same directory, you can skip this step.",
+      "skip": "Skip",
+      "continue": "Continue"
+    }
   }
 }

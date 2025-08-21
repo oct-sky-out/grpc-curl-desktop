@@ -10,7 +10,12 @@
     "methods": "利用可能なサービス",
     "noMethods": "メソッドが見つかりません",
     "parsing": "proto ファイルを解析中...",
-    "error": "proto ファイルの解析に失敗しました"
+    "error": "proto ファイルの解析に失敗しました",
+    "importError": "import の解決に失敗しました。まずインクルードディレクトリを設定してください。",
+    "setupRequired": ".proto ファイルに import がある場合は、まずインクルードパスを設定してください",
+    "setupIncludePaths": "インクルードパス設定",
+    "includePathsSet": "インクルードパスが設定されました",
+    "reconfigureIncludePaths": "インクルードパス再設定"
   },
   "request": {
     "method": "メソッド",
@@ -58,5 +63,21 @@
     "cancel": "キャンセル",
     "confirm": "確認",
     "add": "追加"
+  },
+  "project": {
+    "setup": {
+      "title": "プロジェクト設定",
+      "info": {
+        "title": "インクルードディレクトリを設定する理由は？",
+        "description": ".proto ファイルが他のディレクトリにある .proto ファイルをインポートする場合、それらのディレクトリを指定する必要があります。"
+      },
+      "includeDirectories": "インクルードディレクトリ",
+      "includeDirectories.description": "メインの .proto ファイルからインポートされる可能性がある .proto ファイルを含むディレクトリを選択してください。",
+      "addDirectory": "インクルードディレクトリを追加",
+      "noDirectories": "インクルードディレクトリが選択されていません",
+      "canSkip": ".proto ファイルに import がないか、すべての import が同じディレクトリにある場合は、この手順をスキップできます。",
+      "skip": "スキップ",
+      "continue": "続行"
+    }
   }
 }
